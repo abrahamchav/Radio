@@ -39,6 +39,7 @@ public class RadioAdmin
 	private Random randomGenerator;
 	
 	private ArrayList<Item> database;
+	
 	//Constructors
 	public RadioAdmin()
 	{
@@ -97,66 +98,12 @@ public class RadioAdmin
 					runPrintItems();
 					break;
 				case 6:
+					saveFile();
 					System.out.println("Exit Saving");
 					default:
 			}
 		}
 	}
-	public int addItems()
-	{
-		int choice;
-		String input = JOptionPane.showInputDialog("Select Category to add Item\n" +
-				"1. Talk Show\n" + 
-				"2. Songs\n" + 
-				"3. Commercials\n" +
-				"4. Exit Adding Menu");
-		choice = Integer.parseInt(input);
-		return choice;
-	}
-	public void runAddItems()
-	{
-		int choice = 0;
-		while (choice !=4)
-		{
-			choice = this.addItems();
-			
-			switch(choice)
-			{
-				case 1:
-					addTalkShow();
-					break;
-				case 2:
-					addSong();
-					break;
-				case 3:
-					addCommercials();
-					break;
-				case 4:
-					default:
-			}
-		}
-	}
-	/**
-	 * Method to generate SearchMenu display
-	 * Giving options for Song, commercial talk show
-	 * and Exit to return to main menu
-	 * @return the option chose by the user
-	 */
-	public int printItems()
-	{
-		int choice ;
-		System.out.println();
-		String input = JOptionPane.showInputDialog( "Select the item to print\n" + 
-				"1. Print specific category\n" +
-				"2. Talk Show\n" +
-				"3. Song\n" +
-				"4. Commercials\n" +
-				"5. Print complete list\n" +
-				"6. Exit search submenu");
-		choice = Integer.parseInt(input);
-		return choice;	
-	}
-
 	/**
 	 * Method to load list for Songs, Commercials and TalkShows
 	 * Using bufferedReader and StringTokenizer
@@ -246,7 +193,6 @@ public class RadioAdmin
 		}
 	}
 	//Private Methods
-
 	/**
 	 * 
 	 * @param line
@@ -300,93 +246,54 @@ public class RadioAdmin
 				st.nextToken());
 		return commercials; 
 	}
-
 	private Item producePlayList()
 	{
 		String input = JOptionPane.showInputDialog("Enter time");
-//		SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
-//	    Date date = null;
-//	    try {
-//	        date = sdf.parse(input);
-//	    } catch (ParseException e) {
-//	        e.printStackTrace();
-//	    }
-//	    String formattedTime = sdf.format(date);
-//
-//	    System.out.println(formattedTime);
+		String [] time = input.split(":");
+		int minute = Integer.parseInt(time[0]);
+		int second = Integer.parseInt(time[1]);
 		
-//	    String[] parts = input.split(":");
-//	    String part1 = parts[0]; // 004
-//	    String part2 = parts[1]; // 034556
-//	    
-//	    
-//			
-//			
-//			String [] time =item.getPlayTime().split(":");
-//			String p1 = time[0];
-//			String p2 = time[1];
-//			
-//			if(part1.equals(p1) )
-//			{
-			for(int x = 0 ; x <database.size(); x++)
-			{
-				int index = randomGenerator.nextInt(database.size());
-				Item item = database.get(index);
-				System.out.println(x+ "List" + item);
-				return item;
+		int temp;
+		temp = second + (60* minute);
 			
-			}
+			//System.out.println(temp);
 			
-			return null;
-		
-	}
-
-	/////////////PRINT METHODS ////////////////
-	/**
-	 * 
-	 * @param findId
-	 */
-	private void printSongSearch(int findId)
-	{
 		Iterator<Item> i =  database.iterator();
-		
+		String timePlayList="";
 		while(i.hasNext())
 		{
 			Item item = (Item) i.next();
-			if(item instanceof Song)
-				System.out.println(item);
+			timePlayList = item.getPlayTime();
 		}
-	}
-
-	/**
-	 * 
-	 * @param categ
-	 */
-	private void printSubCommercialsCategory(String categ)
-	{
-		for(int x=0; x <database.size(); x++)
+			
+		String [] timeIn = timePlayList.split(":");
+		int min = Integer.parseInt(timeIn[0]);
+		int sec = Integer.parseInt(timeIn[1]);
+		
+		int temp2;
+		temp2 = sec + (60*min);
+		//System.out.println(temp2);
+		
+		while(temp > temp2)
 		{
-			Item comm = database.get(x);
-			String c = comm.getCategory();
-			if(categ.equals(c))
-			{
-				System.out.println(comm.getId() + "," + comm.getCategory() + "," + comm.getTitle() + "," + 
-			comm.getPlayTime() + "," + comm.getAudioFile());
-			}
+			
+			int index = randomGenerator.nextInt(database.size());
+			Item item =  database.get(index);
+			System.out.println( "List" + item);
+			temp2++;
 		}
-	}
-	/**
-	 * 
-	 * @param findId
-	 */
-	private void printReport(int findId)
-	{
-		System.out.println("\n***************Talk Show***************\n");
-		printTalkShowSearch(findId);
-		System.out.println("\n***************Songs***************\n");
-		printSongSearch(findId);
-		System.out.println("\n***************Commercials***************\n");
-		printCommercialSearch(findId);	
-	}
-
+		
+		
+		System.out.println();
+			
+		for(int x =0; x<3; x++)
+		{
+			int index = randomGenerator.nextInt(database.size());
+			Item item =  database.get(index);
+			System.out.println( "List" + item);
+				//return item;
+		}
+		return null;
+				
+	}	
 }
