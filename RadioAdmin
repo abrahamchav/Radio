@@ -1,0 +1,392 @@
+package ca.Sait.WKRP.Control;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+import javax.swing.JOptionPane;
+
+import ca.Sait.WKRP.Data.Commercials;
+import ca.Sait.WKRP.Data.Item;
+import ca.Sait.WKRP.Data.Song;
+import ca.Sait.WKRP.Data.TalkShow;
+
+/**
+ * 
+ * @author 612445
+ * version 1.0
+ * 
+ * Class Description:
+ */
+public class RadioAdmin 
+{
+	Scanner in = new Scanner(System.in);
+	
+	//Constants
+	//Attributes
+	private String DATABASE = "res/database.txt";
+	private Random randomGenerator;
+	
+	private ArrayList<Item> database;
+	//Constructors
+	public RadioAdmin()
+	{
+		database = new ArrayList<Item>(100);
+		loadList();
+		randomGenerator = new Random();
+	}
+	//Getters and Setters Methods
+	//Operational Methods
+	/**
+	 * Method to generate MainMenu display
+	 * @return the option chose by the user
+	 */
+	public int MainMenu()
+	{
+		int choice ;
+		System.out.println();
+		String input = JOptionPane.showInputDialog( "Enter Option to navigate through Menu\n" + 
+				"1. Add a new Song, Talk Show or Commercial\n" +
+				"2. Search Item by ID ( EG: 1003)\n" +
+				"3. Remove a Song, Talk Show or Commercial\n" +
+				"by entering the ID\n "+ 
+				"4. Create a random playlist\n " + 
+				"		Enter the amount of time for the playlist\n" +
+				"5. Print complete list or items by category\n" +
+				"6. Exit Program\n");
+		choice = Integer.parseInt(input);
+		return choice;	
+	}
+	/**
+	 * Method to execute the MainMenu display
+	 * 6 options given to the user.
+	 */
+	public void runMainMenu()
+	{
+		int choice = 0;
+		while(choice !=6)
+		{
+			choice = this.MainMenu();
+			
+			switch(choice)
+			{
+				case 1:
+					runAddItems();
+					break;
+				case 2:
+					runSearchMenu();
+					break;
+				case 3:
+					runDeleteMenu();
+					break;
+				case 4:
+					producePlayList();
+					break;
+				case 5:
+					runPrintItems();
+					break;
+				case 6:
+					System.out.println("Exit Saving");
+					default:
+			}
+		}
+	}
+	public int addItems()
+	{
+		int choice;
+		String input = JOptionPane.showInputDialog("Select Category to add Item\n" +
+				"1. Talk Show\n" + 
+				"2. Songs\n" + 
+				"3. Commercials\n" +
+				"4. Exit Adding Menu");
+		choice = Integer.parseInt(input);
+		return choice;
+	}
+	public void runAddItems()
+	{
+		int choice = 0;
+		while (choice !=4)
+		{
+			choice = this.addItems();
+			
+			switch(choice)
+			{
+				case 1:
+					addTalkShow();
+					break;
+				case 2:
+					addSong();
+					break;
+				case 3:
+					addCommercials();
+					break;
+				case 4:
+					default:
+			}
+		}
+	}
+	/**
+	 * Method to generate SearchMenu display
+	 * Giving options for Song, commercial talk show
+	 * and Exit to return to main menu
+	 * @return the option chose by the user
+	 */
+	public int printItems()
+	{
+		int choice ;
+		System.out.println();
+		String input = JOptionPane.showInputDialog( "Select the item to print\n" + 
+				"1. Print specific category\n" +
+				"2. Talk Show\n" +
+				"3. Song\n" +
+				"4. Commercials\n" +
+				"5. Print complete list\n" +
+				"6. Exit search submenu");
+		choice = Integer.parseInt(input);
+		return choice;	
+	}
+
+	/**
+	 * Method to load list for Songs, Commercials and TalkShows
+	 * Using bufferedReader and StringTokenizer
+	 */
+	public void loadList()
+	{ 
+		BufferedReader br = null;
+		try
+		{
+			File file = new File(DATABASE);
+			FileReader input = new FileReader(file);
+			br = new BufferedReader(input);
+			
+			String line = br.readLine();
+			
+			while(line !=null)
+			{
+				int itemId = Integer.parseInt(line.charAt(3)+"");
+				StringTokenizer st = new StringTokenizer(line, ",");
+				switch(itemId)
+				{
+					case 0:
+					case 1:
+					case 2:
+						TalkShow talkShow = new TalkShow(
+								Integer.parseInt(st.nextToken()),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken());
+						database.add(talkShow);
+						break;
+					case 3:
+					case 4:
+					case 5:
+					case 6:
+					case 7:					
+						Song song = new Song(
+								Integer.parseInt(st.nextToken()),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken());						
+						database.add(song);
+						break;
+					case 8:
+					case 9:
+						Commercials commercial = new Commercials(
+								Integer.parseInt(st.nextToken()),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken(),
+								st.nextToken());
+						database.add(commercial);
+						break;					
+				}
+				line = br.readLine();
+			}
+			input.close();
+		}
+		catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+		  	e.printStackTrace();
+		}
+	}
+	private void savefile()
+	{
+		try
+		{
+			PrintWriter pw = new PrintWriter(DATABASE);
+			int x = 0;
+			for( x = 0; x<database.size(); x++)
+			{
+				pw.println(database.get(x));
+			}
+			pw.println(database.get(x));
+			pw.close();
+		}catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	//Private Methods
+
+	/**
+	 * 
+	 * @param line
+	 * @return
+	 */
+	private Song parseSongString(String line)
+	{
+		StringTokenizer st = new StringTokenizer(line,",");
+		
+		Song song = new Song(
+				Integer.parseInt(st.nextToken()),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken());
+		return song;
+	}
+	/**
+	 * 
+	 * @param line
+	 * @return
+	 */
+	private TalkShow parseTalkShowsString(String line)
+	{
+		StringTokenizer st = new StringTokenizer(line,",");
+		
+		TalkShow talkShow = new TalkShow(
+				Integer.parseInt(st.nextToken()),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken(), 
+				st.nextToken());
+		return talkShow;
+	}
+	/**
+	 * 
+	 * @param line
+	 * @return
+	 */
+	private Commercials parseCommercialsString(String line)
+	{
+		StringTokenizer st = new StringTokenizer(line,",");
+		
+		Commercials commercials = new Commercials(
+				Integer.parseInt(st.nextToken()),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken(),
+				st.nextToken());
+		return commercials; 
+	}
+
+	private Item producePlayList()
+	{
+		String input = JOptionPane.showInputDialog("Enter time");
+//		SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+//	    Date date = null;
+//	    try {
+//	        date = sdf.parse(input);
+//	    } catch (ParseException e) {
+//	        e.printStackTrace();
+//	    }
+//	    String formattedTime = sdf.format(date);
+//
+//	    System.out.println(formattedTime);
+		
+//	    String[] parts = input.split(":");
+//	    String part1 = parts[0]; // 004
+//	    String part2 = parts[1]; // 034556
+//	    
+//	    
+//			
+//			
+//			String [] time =item.getPlayTime().split(":");
+//			String p1 = time[0];
+//			String p2 = time[1];
+//			
+//			if(part1.equals(p1) )
+//			{
+			for(int x = 0 ; x <database.size(); x++)
+			{
+				int index = randomGenerator.nextInt(database.size());
+				Item item = database.get(index);
+				System.out.println(x+ "List" + item);
+				return item;
+			
+			}
+			
+			return null;
+		
+	}
+
+	/////////////PRINT METHODS ////////////////
+	/**
+	 * 
+	 * @param findId
+	 */
+	private void printSongSearch(int findId)
+	{
+		Iterator<Item> i =  database.iterator();
+		
+		while(i.hasNext())
+		{
+			Item item = (Item) i.next();
+			if(item instanceof Song)
+				System.out.println(item);
+		}
+	}
+
+	/**
+	 * 
+	 * @param categ
+	 */
+	private void printSubCommercialsCategory(String categ)
+	{
+		for(int x=0; x <database.size(); x++)
+		{
+			Item comm = database.get(x);
+			String c = comm.getCategory();
+			if(categ.equals(c))
+			{
+				System.out.println(comm.getId() + "," + comm.getCategory() + "," + comm.getTitle() + "," + 
+			comm.getPlayTime() + "," + comm.getAudioFile());
+			}
+		}
+	}
+	/**
+	 * 
+	 * @param findId
+	 */
+	private void printReport(int findId)
+	{
+		System.out.println("\n***************Talk Show***************\n");
+		printTalkShowSearch(findId);
+		System.out.println("\n***************Songs***************\n");
+		printSongSearch(findId);
+		System.out.println("\n***************Commercials***************\n");
+		printCommercialSearch(findId);	
+	}
+
+}
